@@ -1,33 +1,18 @@
-#ifndef BINARY.H
-#define BINARY.H
+#ifndef BINARY_H
+#define BINARY_H
 
 #include <stdio.h>
 
-
-
+// Struct to hold a character and its binary representation
 typedef struct {
-
-    char character; // character to be encoded 
-    char binary[9]; // there is only 8 bits in a byte and we need a null terminator
-
+    char character;      // Character to be encoded
+    char binary[9];      // 8 bits + 1 null terminator
 } BinaryMapping;
 
+// Function declarations
+void CharGetter(char *CG, int size);                    // Function to get input from the user
+FILE *fileOpener(const char *filename, const char *mode); // Function to open a file and return FILE*
+void fileCloser(FILE *fp);                              // Function to close a file
+void binaryConverter(char character, char *binary);     // Function to convert a character to binary
 
-void LoadBinaryMapping(const char *filename);
-void ConvertToBinary(const char *input, char *output);
-void FreeBinaryMapping();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#endif // BINARY.H
+#endif // BINARY_H
