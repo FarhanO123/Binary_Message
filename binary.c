@@ -27,6 +27,7 @@ FILE *fileOpener(const char *filename, const char *mode) {
         exit(1); // Exit if file can't be opened
     }
 
+    clearFile("binary.txt"); // Clear the file if opened successfully
     return fp;
 }
 
@@ -34,6 +35,7 @@ FILE *fileOpener(const char *filename, const char *mode) {
 void fileCloser(FILE *fp) {
     if (fp != NULL) {
         fclose(fp); // Close the file
+        clearFile("binary.txt"); // Clear the file
         printf("Closing file\n");
     }
 }
@@ -46,4 +48,16 @@ void binaryConverter(char character, char *binary) {
         // Shifts character right by i, masks with 1 to get the bit
     }
     binary[8] = '\0'; // Null-terminate the string
+}
+
+// Function to clear the contents of a file
+
+void clearFile(const char *filename) {
+    FILE *fp = fopen(filename, "w");
+    if (fp != NULL) {
+        fclose(fp);
+        printf("binary.txt has been cleared.\n");
+    } else {
+        printf("Failed to clear binary.txt.\n");
+    }
 }
