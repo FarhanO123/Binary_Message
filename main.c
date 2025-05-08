@@ -1,10 +1,42 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <windows.h>
 
 #include "binary.c" // Or include "binary.h" if separated
 // CG: Character Getter
+
+// Added missing file operation functions
+FILE* fileOpener(const char* filename, const char* mode) {
+    return fopen(filename, mode);
+}
+
+void fileCloser(FILE* fp) {
+    if (fp != NULL) {
+        fclose(fp);
+    }
+}
+
+void clearFile(const char* filename) {
+    // Open file in write mode to clear its contents
+    FILE* fp = fileOpener(filename, "w");
+    if (fp != NULL) {
+        fileCloser(fp); // Close immediately to clear the file
+    }
+}
+
+// Assuming this function gets a string from user input
+void CharGetter(char* buffer, int size) {
+    printf("Enter text to convert: ");
+    fgets(buffer, size, stdin);
+}
+
+// Assuming this function converts a character to binary
+void binaryConverter(char ch, char* binary) {
+    for (int i = 7; i >= 0; i--) {
+        binary[7-i] = ((ch >> i) & 1) ? '1' : '0';
+    }
+    binary[8] = '\0'; // Null-terminate the binary string
+}
 
 void translator() {
     // Allocate memory for user input (up to 100 characters)
@@ -31,7 +63,7 @@ void translator() {
     // Allocate a buffer to store the full binary translation
     char *fullBinary = malloc(sizeof(char) * 1000); // 100 * 9 (8 bits + space) + null terminator
     if (fullBinary == NULL) {
-        MessageBoxA(NULL, "Memory allocation failed for fullBinary!", "Error", MB_OK | MB_ICONERROR);
+        printf("Memory allocation failed for fullBinary!\n"); // Print error to console
         free(CG);
         fileCloser(fp);
         return;
@@ -52,6 +84,9 @@ void translator() {
 
     // Save result to file
     fprintf(fp, "Input:  %s\nBinary: %s\n\n", CG, fullBinary);
+    
+    // Make sure data is written immediately by flushing the buffer
+    fflush(fp);
 
     // Prompt user
     printf("Do you want to print more? (y/n): ");
@@ -71,10 +106,12 @@ void translator() {
         case 'n':
         case 'N':
             printf("Peace \n");
+            fileCloser(fp); // Close the file first before clearing it
             clearFile("binary.txt"); // Clear the file
             break;
         default:
             printf("Not a correct option... Exitting \n");
+            fileCloser(fp); // Close the file first before clearing it
             clearFile("binary.txt"); // Clear the file
             break;
     }
@@ -82,13 +119,17 @@ void translator() {
     // Clean up
     free(CG);
     free(fullBinary);
-    fileCloser(fp);
+    // Don't close fp here as it's already closed in all switch cases
 }
 
 void viewFile() {
     FILE * fp = fileOpener("binary.txt", "r"); // Open file in read mode
+    if (fp == NULL) {
+        printf("File not found or cannot be opened.\n");
+        return;
+    }
+    
     char line[256]; // Buffer for each line
-
 
     printf("\n----- Contents of binary.txt -----\n");
     while(fgets(line, sizeof(line), fp)) {
@@ -100,7 +141,6 @@ void viewFile() {
 }
 
 int main() {
-
     int choice;
 
     do {
