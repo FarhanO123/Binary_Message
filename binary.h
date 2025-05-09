@@ -1,19 +1,25 @@
-#ifndef BINARY_H
+#ifndef BINARY_H  // Header guard to prevent multiple inclusions of this file
 #define BINARY_H
 
-#include <stdio.h>
+// Function to convert a single character to its binary representation
+void binaryConverter(char ch, char* binary);
 
-// Struct to hold a character and its binary representation
-typedef struct {
-    char character;      // Character to be encoded
-    char binary[9];      // 8 bits + 1 null terminator
-} BinaryMapping;
+// Function to get input from the user (character, string, or number)
+void CharGetter(char* buffer, int size);
 
-// Function declarations
-void CharGetter(char *CG, int size);                    // Function to get input from the user
-FILE *fileOpener(const char *filename, const char *mode); // Function to open a file and return FILE*
-void fileCloser(FILE *fp);                              // Function to close a file
-void binaryConverter(char character, char *binary);     // Function to convert a character to binary
-void clearFile(const char* clearFile); // Function to clear the contents of a file
+// Function to open a file with the given filename and mode
+FILE* fileOpener(const char* filename, const char* mode);
 
-#endif // BINARY_H
+// Function to close an opened file and print a message 
+void fileCloser(FILE* fp);
+
+// Function to manually clear the contents of a specified file. 
+void clearFileManually(const char* filename);
+
+// Function to view the contents of the binary file (binary.txt)
+void viewFile();
+
+// Function to manage the main translation process & This includes getting user input, converting it to binary, writing to the file, and displaying results
+void translator();
+
+#endif

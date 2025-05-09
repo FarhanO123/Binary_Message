@@ -1,144 +1,117 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include "binary.h"
 
-void binaryConverter(char ch, char* binary) {
-    for (int i = 7; i >= 0; i--) {
-        binary[7-i] = ((ch >> i) & 1) ? '1' : '0';
-    }
-    binary[8] = '\0';
-}
+// ANSI color codes for red and reset
+#define RED "\033[0;31m"
+#define RESET "\033[0m"
 
-FILE* fileOpener(const char* filename, const char* mode) {
-    return fopen(filename, mode);
-}
-
-void fileCloser(FILE* fp) {
-    if (fp != NULL) {
-        fclose(fp);
-        printf("Closing file\n");
-    }
-}
-
-// Only called when user chooses "Clear File"
-void clearFileManually(const char* filename) {
-    FILE* fp = fileOpener(filename, "w");
-    if (fp != NULL) {
-        printf("binary.txt has been cleared manually.\n");
-        fileCloser(fp);
-    }
-}
-
-void CharGetter(char* buffer, int size) {
-    printf("Enter any character or number: ");
-    fgets(buffer, size, stdin);
-    buffer[strcspn(buffer, "\n")] = '\0'; // Strip newline
-    printf("You entered: %s\n", buffer);
-}
-
+// Function to convert a character to its binary representation
 void translator() {
+    // Allocate memory to store user input (character string)
     char *CG = malloc(sizeof(char) * 100);
-    if (CG == NULL) return;
+    if (CG == NULL) return;  // Check if memory allocation failed
 
+    // Prompt the user to enter a character, string, or number
     CharGetter(CG, 100);
 
-    FILE *fp = fileOpener("binary.txt", "a"); // Append mode
+    // Open the file "binary.txt" for appending (adding data without overwriting)
+    FILE *fp = fileOpener("binary.txt", "a");
     if (fp == NULL) {
-        free(CG);
-        printf("Failed to open file for writing.\n");
+        free(CG);  // Free allocated memory if file couldn't be opened
+        printf(RED "Failed to open file for writing.\n" RESET);
         return;
     }
 
+    // Allocate memory to store the full binary string
     char *fullBinary = malloc(sizeof(char) * 1000);
     if (fullBinary == NULL) {
-        free(CG);
-        fileCloser(fp);
+        free(CG);  // Free memory if allocation for binary string fails
+        fileCloser(fp);  // Close file if memory allocation fails
         return;
     }
-    fullBinary[0] = '\0';
+    fullBinary[0] = '\0';  // Initialize the binary string as empty
 
+    // Temporary storage for individual character binary representation
     char binary[9];
+    // Iterate over each character in the input string
     for (int i = 0; CG[i] != '\0'; i++) {
-        binaryConverter(CG[i], binary);
-        strcat(fullBinary, binary);
-        strcat(fullBinary, " ");
+        binaryConverter(CG[i], binary);  // Convert each character to binary
+        strcat(fullBinary, binary);  // Append the binary string
+        strcat(fullBinary, " ");  // Add a space between binary values
     }
 
-    printf("%s -> %s\n", CG, fullBinary);
+    // Display the original input and its binary conversion
+    printf(RED "%s -> %s\n" RESET, CG, fullBinary);
+
+    // Write the input and binary conversion to the file
     fprintf(fp, "Input:  %s\nBinary: %s\n\n", CG, fullBinary);
-    fflush(fp);
+    fflush(fp);  // Flush data to file immediately
 
+    // Prompt user if they want to enter another string
     char choice;
-    printf("Do you want to print more? (y/n): ");
-    scanf(" %c", &choice);
-    while (getchar() != '\n'); // flush stdin
+    printf(RED "Do you want to print more? (y/n): " RESET);
+    scanf(" %c", &choice);  // Read the user's decision
+    while (getchar() != '\n');  // Clear the input buffer
 
+    // Free the allocated memory for input and binary strings
     free(CG);
     free(fullBinary);
-    fileCloser(fp);
+    fileCloser(fp);  // Close the file
 
+    // If user chooses to continue, restart the translator function
     if (choice == 'y' || choice == 'Y') {
-        printf("Restarting...\n");
+        printf(RED "Restarting...\n" RESET);
         translator();
     } else {
-        printf("Peace\n");
+        // If user chooses to stop, print a goodbye message
+        printf(RED "Peace\n" RESET);
     }
 }
 
-void viewFile() {
-    FILE *fp = fileOpener("binary.txt", "r");
-    if (fp == NULL) {
-        printf("File does not exist or cannot be opened.\n");
-        return;
-    }
-
-    printf("\n----- Contents of binary.txt -----\n");
-    char line[256];
-    while (fgets(line, sizeof(line), fp)) {
-        printf("%s", line);
-    }
-    printf("\n----------------------------------\n");
-
-    fileCloser(fp);
-}
-
+// Main function to handle user input and program flow
 int main() {
     int choice;
 
+    // Loop to display the main menu until user chooses to exit
     do {
-        printf("\n--- English to Binary Translator ---\n");
-        printf("1. Translate English to Binary\n");
-        printf("2. View Binary File\n");
-        printf("3. Clear File Contents\n");
-        printf("4. Exit\n");
-        printf("Enter your choice: ");
+        // Display menu with color-coded options
+        printf(RED "\n--- English to Binary Translator ---\n" RESET);
+        printf(RED "1. Translate English to Binary\n" RESET);
+        printf(RED "2. View Binary File\n" RESET);
+        printf(RED "3. Clear File Contents\n" RESET);
+        printf(RED "4. Exit\n" RESET);
+        printf(RED "Enter your choice: " RESET);
 
+        // Read the user's choice, check for valid input
         if (scanf("%d", &choice) != 1) {
-            while (getchar() != '\n');
-            printf("Invalid input. Please enter a number.\n");
-            continue;
+            while (getchar() != '\n');  // Clear the input buffer
+            printf(RED "Invalid input. Please enter a number.\n" RESET);
+            continue;  // Restart the loop if input is invalid
         }
 
-        while (getchar() != '\n'); // flush newline
+        while (getchar() != '\n');  // Clear any remaining characters in the buffer
 
+        // Handle different choices based on user input
         switch (choice) {
             case 1:
-                translator();
+                translator();  // Call the translator function to convert input to binary
                 break;
             case 2:
-                viewFile();
+                viewFile();  // View the contents of the binary file
                 break;
             case 3:
-                clearFileManually("binary.txt");
+                clearFileManually("binary.txt");  // Clear the contents of the file
                 break;
             case 4:
-                printf("Goodbye!\n");
+                printf("Goodbye!\n");  // Exit message
                 break;
             default:
-                printf("Invalid choice. Try again.\n");
+                printf("Invalid choice. Try again.\n");  // Handle invalid menu choices
         }
 
-    } while (choice != 4);
+    } while (choice != 4);  // Continue the loop until user chooses to exit (option 4)
 
-    return 0;
+    return 0;  // Return 0 to indicate successful program execution
 }
